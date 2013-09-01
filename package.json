@@ -1,0 +1,22 @@
+{
+  "name": "multipartist",
+  "version": "0.1.0",
+  "description": "A multipart constructor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xingrz/multipartist.git"
+  },
+  "keywords": [
+    "multipart",
+    "constructor"
+  ],
+  "author": "XiNGRZ <chenxingyu92@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xingrz/multipartist/issues"
+  }
+}
