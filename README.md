@@ -39,7 +39,7 @@ npm install multipartist
 
 ## Requirements
 
-- **[Node](http://nodejs.org)** >= 0.10
+- **[Node](http://nodejs.org)** >= 0.8
 
 ## API Documentation
 
