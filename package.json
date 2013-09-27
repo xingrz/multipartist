@@ -3,6 +3,16 @@
 , "version": "0.1.0"
 , "description": "A multipart constructor"
 , "main": "index.js"
+, "devDependencies": {
+    "mocha": "*"
+  , "mocha-lcov-reporter": "*"
+  , "coveralls": "*"
+  , "should": "*"
+  , "restify": "*"
+  , "blanket": "*"
+  , "travis-cov": "*"
+  , "multiparty": "*"
+  }
 , "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   }
