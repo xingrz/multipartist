@@ -1,9 +1,23 @@
 Multipartist
 ==========
 
-Multipartist is a library to build multipart data, with streaming APIs.
+[![][travis-img]][travis-url] [![][coveralls-img]][coveralls-url] [![][npm-version]][npm-url] [![][npm-downloads]][npm-url] [![][license-img]][license-url] [![][issues-img]][issues-url]
+
+Build multipart stream, with stream.
+
+## Requirements
+
+Node >= 4, tested on latest Node and latest LTS Node.
+
+## Installation
+
+```sh
+npm install --save multipartist
+```
 
 ## Usage
+
+
 
 ```js
 var multipartist = require('multipartist')
@@ -31,21 +45,14 @@ multipart.pipe(request.post(endPoint, {
 }))
 ```
 
-## Installation
 
-```
-npm install multipartist
-```
-
-## Requirements
-
-- **[Node](http://nodejs.org)** >= 0.8
-
-## API Documentation
+## API
 
 ### multipartist(type)
 
 Create a Multipartist instance.
+
+Multipartist itself is an subclass of [Readable Stream](https://nodejs.org/dist/latest/docs/api/stream.html#stream_readable_streams).
 
 #### Arguments
 
@@ -55,15 +62,16 @@ Create a Multipartist instance.
 
 Multipartist - an Multipartist instance
 
-### Multipartist#add([headers, ]content[, length])
+### Multipartist#append([name, ]content[, length][, headers])
 
 Add a part.
 
 #### Arguments
 
-- ***headers*** Object - Optional. Headers of this part
-- **content** String | Buffer | [stream.Readable](http://nodejs.org/api/stream.html#stream_class_stream_readable) - Content of this part
-- ***length*** Number - Optional. Length of the content of this part. It is better to specific the length of a `stream.Readable` part explicitly. Otherwise, the `Content-Length` of the whole multipart payload would not be caculated.
+- **content** String | Buffer | [Readable](https://nodejs.org/dist/latest/docs/api/stream.html#stream_class_stream_readable) - Content of this part
+- ***name*** String - Name of this part, only required for multipart/form-data.
+- ***length*** Number - Optional. Length of the content of this part. It's better to specific the length of a `Readable` part explicitly. Otherwise, the `Content-Length` of the whole multipart payload would not be caculated.
+- ***headers*** Object - Optional. Additional headers of this part
 
 #### Returns
 
@@ -81,16 +89,25 @@ Returns all auto-generated headers.
 
 - Object - Headers
 
-## Contributing
+## Test
 
-See [CONTRIBUTING](CONTRIBUTING) file.
-
-## Running Tests
-
-```
-make test
+```sh
+npm test
 ```
 
 ## License
 
-Multipartist is released under the MIT License. See the bundled [LICENSE](LICENSE) file for details.
+This project is released under the terms of [MIT License](LICENSE).
+
+
+[travis-img]: https://img.shields.io/travis/xingrz/multipartist/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/xingrz/multipartist
+[coveralls-img]: https://img.shields.io/coveralls/xingrz/multipartist/master.svg?style=flat-square
+[coveralls-url]: https://coveralls.io/r/xingrz/multipartist
+[npm-version]: https://img.shields.io/npm/v/multipartist.svg?style=flat-square
+[npm-downloads]: https://img.shields.io/npm/dm/multipartist.svg?style=flat-square
+[npm-url]: https://www.npmjs.org/package/multipartist
+[license-img]: https://img.shields.io/npm/l/multipartist.svg?style=flat-square
+[license-url]: LICENSE
+[issues-img]: https://img.shields.io/github/issues/xingrz/multipartist.svg?style=flat-square
+[issues-url]: https://github.com/xingrz/multipartist/issues

@@ -5,6 +5,7 @@
 
 node_modules
 
+/.travis.yml
 /.nyc_output
 /coverage
-/lib
+/test

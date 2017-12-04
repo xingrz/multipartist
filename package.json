@@ -1,35 +1,53 @@
 {
-  "name": "multipartist"
-, "version": "0.0.0"
-, "description": "A multipart constructor"
-, "main": "index.js"
-, "devDependencies": {
-    "mocha": "*"
-  , "mocha-lcov-reporter": "*"
-  , "coveralls": "*"
-  , "should": "*"
-  , "restify": "*"
-  , "blanket": "*"
-  , "travis-cov": "*"
-  , "multiparty": "*"
-  }
-, "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
-, "repository": {
-    "type": "git"
-  , "url": "https://github.com/xingrz/multipartist.git"
-  }
-, "keywords": [
+  "name": "multipartist",
+  "version": "1.0.0-rc0",
+  "description": "Build streaming multipart",
+  "main": "index.js",
+  "engines": {
+    "node": ">= 4"
+  },
+  "scripts": {
+    "build": "babel es -d lib",
+    "clean": "rm -rf lib",
+    "prepublish": "npm run build",
+    "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha",
+    "test:ci": "cross-env NODE_ENV=test nyc --reporter=text mocha --reporter=tap",
+    "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov | coveralls"
+  },
+  "nyc": {
+    "require": [
+      "babel-register",
+      "babel-polyfill"
+    ],
+    "sourceMap": false,
+    "instrument": false
+  },
+  "author": "XiNGRZ <chenxingyu92@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xingrz/multipartist.git"
+  },
+  "keywords": [
     "multipart"
-  , "constructor"
-  ]
-, "author": "XiNGRZ <chenxingyu92@gmail.com>"
-, "license": "MIT"
-, "bugs": {
-    "url": "https://github.com/xingrz/multipartist/issues"
-  }
-, "dependencies": {
-    "through": "~2.3.4"
+  ],
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-istanbul": "^4.1.5",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "coveralls": "^3.0.0",
+    "cross-env": "^5.1.1",
+    "mocha": "^4.0.1",
+    "multiparty": "^4.1.3",
+    "nyc": "^11.3.0",
+    "pond": "^1.0.0",
+    "should": "^13.1.3"
+  },
+  "dependencies": {
+    "debug": "^3.1.0"
   }
 }
