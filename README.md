@@ -5,6 +5,8 @@ Multipartist
 
 Build multipart stream, with stream.
 
+Unlike [form-data](https://github.com/form-data/form-data), this library provides more lower-level APIs to build not only `multipart/form-data` but also `multipart/related` and any other similar structures.
+
 ## Requirements
 
 Node >= 4, tested on latest Node and latest LTS Node.
@@ -17,59 +19,50 @@ npm install --save multipartist
 
 ## Usage
 
-
-
 ```js
-var multipartist = require('multipartist')
-  , request = require('request') // or other http request lib you like
-  , fs = require('fs')
+import Multipart from 'multipartist';
+import request from 'request';
+import { createReadStream } from 'fs';
 
-// for example: https://developers.google.com/glass/media-upload#multipart
-var endPoint = 'https://www.googleapis.com/upload/mirror/v1/timeline?uploadType=multipart'
+const multipart = new Multipart('form-data');
 
-var multipart = multipartist('related')
-  .add({
-    'Content-Type': 'application/json'
-  }, JSON.stringify({
-    'text': 'Hello world!'
-  }))
-  .add({
-    'Content-Type': 'image/jpeg'
-  , 'Content-Length': fs.statSync('./logo.png').size
-  }, fs.createReadStream('./logo.png'))
+multipart.append(JSON.stringify({ 'text': 'Hello world!' }), {
+  'Content-Disposition': 'form-data; name="metadata"',
+  'Content-Type': 'application/json; charset=UTF-8',
+});
 
-multipart.pipe(request.post(endPoint, {
+multipart.append(createReadStream('audio.wav'), {
+  'Content-Disposition': 'form-data; name="audio"',
+  'Content-Type': 'application/octet-stream',
+  'X-Speaker-Name': 'XiNGRZ',
+});
+
+multipart.pipe(request.post('https://api.example.com/recognize', {
   headers: multipart.headers({
-    'Authorization': 'Bearer 1asdfvaddf23098c9vasd9f'
-  })
-}))
+    'Authorization': 'Bearer YOUR_OWN_API_KEY_HERE',
+  }),
+}, (req, res, body) => {
+  // ...
+}));
 ```
-
 
 ## API
 
-### multipartist(type)
+### Class: Multipartist(type)
 
-Create a Multipartist instance.
-
-Multipartist itself is an subclass of [Readable Stream](https://nodejs.org/dist/latest/docs/api/stream.html#stream_readable_streams).
+The Multipartist class, which is an subclass of [Readable Stream](https://nodejs.org/dist/latest/docs/api/stream.html#stream_readable_streams).
 
 #### Arguments
 
-- **type** String - Multipart type (e.g. `form-data`, `related`, `mixed`, etc...)
+- **type** String - Multipart type (e.g. `form-data`, `related`, etc...). Defaults to `form-data`.
 
-#### Returns
-
-Multipartist - an Multipartist instance
-
-### Multipartist#append([name, ]content[, length][, headers])
+### Multipartist#append(content[, length][, headers])
 
 Add a part.
 
 #### Arguments
 
 - **content** String | Buffer | [Readable](https://nodejs.org/dist/latest/docs/api/stream.html#stream_class_stream_readable) - Content of this part
-- ***name*** String - Name of this part, only required for multipart/form-data.
 - ***length*** Number - Optional. Length of the content of this part. It's better to specific the length of a `Readable` part explicitly. Otherwise, the `Content-Length` of the whole multipart payload would not be caculated.
 - ***headers*** Object - Optional. Additional headers of this part
 

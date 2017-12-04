@@ -51,27 +51,13 @@ export default class Multipartist extends Readable {
     dbg('generated ending %s', this.ending.toString());
   }
 
-  append(content, name, length, headers) {
-    if (typeof name != 'string') {
-      headers = length;
-      length = name;
-      name = null;
-    }
-
+  append(content, length, headers) {
     if (typeof length != 'number') {
       headers = length;
       length = null;
     }
 
     headers = { ...headers };
-
-    if (this.type == 'form-data') {
-      if (name) {
-        headers['Content-Disposition'] = `form-data; name="${name}"`;
-      } else {
-        throw new Error('Name of each part is required for multipart/form-data');
-      }
-    }
 
     dbg('part headers %O', headers);
 
