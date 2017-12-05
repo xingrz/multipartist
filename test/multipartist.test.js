@@ -232,4 +232,51 @@ describe('multipartist', () => {
     multipart.headers.should.not.have.key('content-length');
   });
 
+  it('should keep open until flush() if endOnEmpty = false', (done) => {
+    const multipart = new Multipart('form-data', { endOnEmpty: false });
+
+    const stream = new RandomStream();
+
+    const form = new Form();
+
+    let parts = 0;
+    const contents = {};
+
+    form.on('part', (part) => {
+      contents[part.name] = part.pipe(pond()).spoon();
+      parts++;
+    });
+
+    form.on('close', async () => {
+      try {
+        parts.should.be.eql(2);
+        (await contents.foo).toString('utf8').should.be.eql('bar');
+        (await contents.hello).toString('hex').should.be.eql(stream.concat().toString('hex'));
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+
+    hackHeaders(multipart);
+    form.once('error', (err) => done(err));
+    form.parse(multipart);
+
+    setTimeout(() => {
+      multipart.append('bar', {
+        'Content-Disposition': `form-data; name="foo"`,
+      });
+    }, 500);
+
+    setTimeout(() => {
+      multipart.append(stream, {
+        'Content-Disposition': `form-data; name="hello"`,
+      });
+    }, 1000);
+
+    setTimeout(() => {
+      multipart.flush();
+    }, 1500);
+  });
+
 });

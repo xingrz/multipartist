@@ -41,9 +41,13 @@ export default class Multipartist extends Readable {
 
   _currentStream = null;
 
-  constructor(type = 'form-data', options) {
+  _holdByEmpty = false;
+  _aboutToFlush = 0;  // 0=no, 1=flushing, 2=flushed
+
+  constructor(type = 'form-data', { endOnEmpty, ...options } = {}) {
     super(options);
     this.type = type;
+    this.endOnEmpty = endOnEmpty !== false;
     this.boundary = boundary();
     this.ending = ending(this.boundary);
     this.contentLength = this.ending.length;
@@ -87,6 +91,12 @@ export default class Multipartist extends Readable {
     this.chunks.push(CRLF_BUFFER);
     this.chunks.push(content);
     this.chunks.push(CRLF_BUFFER);
+
+    if (this._holdByEmpty) {
+      dbg('_read() is hold, calling it to resume');
+      this._holdByEmpty = false;
+      this._read();
+    }
   }
 
   headers(additions) {
@@ -107,6 +117,16 @@ export default class Multipartist extends Readable {
     };
   }
 
+  flush() {
+    dbg('about to flush');
+    this._aboutToFlush = 1;
+    if (this._holdByEmpty) {
+      dbg('_read() is hold, calling it to flush');
+      this._holdByEmpty = false;
+      this._read();
+    }
+  }
+
   _read() {
     if (this._currentStream) {
       this._readStream();
@@ -114,10 +134,28 @@ export default class Multipartist extends Readable {
     }
 
     if (this.chunks.length == 0) {
-      dbg('ending');
-      this.push(this.ending);
-      this.push(null);
-      return;
+      if (this.endOnEmpty) {
+        dbg('ending by empty');
+        this.push(this.ending);
+        this.push(null);
+        return;
+      } else {
+        switch (this._aboutToFlush) {
+          case 0: // not flush
+            dbg('empty, hold on _read()');
+            this._holdByEmpty = true;
+            return;
+          case 1: // about to flushing
+            dbg('ending by flush');
+            this._aboutToFlush = 2;
+            this.push(this.ending);
+            this.push(null);
+            return;
+          case 2: // flushed
+            dbg('since flush push() twice. dont care~');
+            return;
+        }
+      }
     }
 
     const chunk = this.chunks.shift();
@@ -125,6 +163,7 @@ export default class Multipartist extends Readable {
       dbg('start streaming');
       this._startStream(chunk);
     } else {
+      dbg('push chunk: %d', chunk.length);
       this.push(chunk);
     }
   }

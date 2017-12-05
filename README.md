@@ -48,13 +48,15 @@ multipart.pipe(request.post('https://api.example.com/recognize', {
 
 ## API
 
-### Class: Multipartist(type)
+### Class: Multipartist(type[, options])
 
 The Multipartist class, which is an subclass of [Readable Stream](https://nodejs.org/dist/latest/docs/api/stream.html#stream_readable_streams).
 
 #### Arguments
 
 - **type** String - Multipart type (e.g. `form-data`, `related`, etc...). Defaults to `form-data`.
+- ***options*** Object
+    - ***endOnEmpty=true*** - Whether the Multipartist readable should end when it's empty. Otherwise, it won't end until explicitly call `flush()`
 
 ### Multipartist#append(content[, length][, headers])
 
@@ -81,6 +83,10 @@ Returns all auto-generated headers.
 #### Returns
 
 - Object - Headers
+
+### Multipartist#flush()
+
+Flush the ending data and end the stream. Only required if `endOnEmpty` is explicitly set to `false`.
 
 ## Test
 
