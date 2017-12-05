@@ -259,6 +259,8 @@ describe('multipartist', () => {
     });
 
     hackHeaders(multipart);
+    multipart.headers.should.not.have.key('content-length');
+
     form.once('error', (err) => done(err));
     form.parse(multipart);
 

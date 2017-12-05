@@ -104,7 +104,7 @@ export default class Multipartist extends Readable {
       'Content-Type': `multipart/${this.type}; boundary="${this.boundary}"`,
     };
 
-    if (this.contentLengthKnown) {
+    if (this.contentLengthKnown && this.endOnEmpty) {
       headers['Content-Length'] = `${this.contentLength}`;
     }
 
