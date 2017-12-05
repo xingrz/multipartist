@@ -73,37 +73,34 @@ describe('multipartist', () => {
     const contents = {};
     const headers = {};
 
-    const assert = () => {
-      contents.should.have.value('foo', 'bar');
-      contents.should.have.value('hello', 'world');
-      contents.should.have.value('buffer', '12345678');
+    form.on('part', (part) => {
+      contents[part.name] = part.pipe(pond()).spoon();
+      headers[part.name] = part.headers;
+      parts++;
+    });
 
-      headers.should.have.key('foo');
-      headers.should.have.key('hello');
-      headers.should.have.key('buffer');
-
-      headers.foo.should.have.value('content-disposition', 'form-data; name="foo"');
-      headers.foo.should.not.have.key('x-part-addition');
-
-      headers.hello.should.have.value('content-disposition', 'form-data; name="hello"');
-      headers.hello.should.have.value('x-part-addition', 'Hello World');
-
-      headers.buffer.should.have.value('content-disposition', 'form-data; name="buffer"');
-      headers.buffer.should.not.have.key('x-part-addition');
-
-      done();
-    };
-
-    form.on('part', async (part) => {
+    form.on('close', async () => {
       try {
-        const content = await part.pipe(pond()).spoon();
-        contents[part.name] = content.toString('utf8');
-        headers[part.name] = part.headers;
-        parts++;
+        parts.should.be.eql(3);
 
-        if (parts == 3) {
-          assert();
-        }
+        (await contents.foo).toString('utf8').should.be.eql('bar');
+        (await contents.hello).toString('utf8').should.be.eql('world');
+        (await contents.buffer).toString('utf8').should.be.eql('12345678');
+
+        headers.should.be.eql({
+          foo: {
+            'content-disposition': 'form-data; name="foo"',
+          },
+          hello: {
+            'content-disposition': 'form-data; name="hello"',
+            'x-part-addition': 'Hello World',
+          },
+          buffer: {
+            'content-disposition': 'form-data; name="buffer"',
+          },
+        });
+
+        done();
       } catch (e) {
         done(e);
       }
@@ -146,47 +143,42 @@ describe('multipartist', () => {
     const contents = {};
     const headers = {};
 
-    const assert = () => {
-      contents.should.have.value('foo1', '1234');
-      contents.should.have.value('stream1', stream1.concat().toString('hex'));
-      contents.should.have.value('foo2', '3456');
-      contents.should.have.value('stream2', stream2.concat().toString('hex'));
-      contents.should.have.value('foo3', '5678');
+    form.on('part', (part) => {
+      contents[part.name] = part.pipe(pond()).spoon();
+      headers[part.name] = part.headers;
+      parts++;
+    });
 
-      headers.should.have.key('foo1');
-      headers.should.have.key('stream1');
-      headers.should.have.key('foo2');
-      headers.should.have.key('stream2');
-      headers.should.have.key('foo3');
-
-      headers.foo1.should.have.value('content-disposition', 'form-data; name="foo1"');
-      headers.foo1.should.not.have.key('x-part-addition');
-
-      headers.stream1.should.have.value('content-disposition', 'form-data; name="stream1"');
-      headers.stream1.should.have.value('x-part-addition', 'Hello World');
-
-      headers.foo2.should.have.value('content-disposition', 'form-data; name="foo2"');
-      headers.foo2.should.not.have.key('x-part-addition');
-
-      headers.stream2.should.have.value('content-disposition', 'form-data; name="stream2"');
-      headers.stream2.should.not.have.key('x-part-addition');
-
-      headers.foo3.should.have.value('content-disposition', 'form-data; name="foo3"');
-      headers.foo3.should.not.have.key('x-part-addition');
-
-      done();
-    };
-
-    form.on('part', async (part) => {
+    form.on('close', async () => {
       try {
-        const content = await part.pipe(pond()).spoon();
-        contents[part.name] = content.toString('hex');
-        headers[part.name] = part.headers;
-        parts++;
+        parts.should.be.eql(5);
 
-        if (parts == 5) {
-          assert();
-        }
+        (await contents.foo1).toString('hex').should.be.eql('1234');
+        (await contents.stream1).toString('hex').should.be.eql(stream1.concat().toString('hex'));
+        (await contents.foo2).toString('hex').should.be.eql('3456');
+        (await contents.stream2).toString('hex').should.be.eql(stream2.concat().toString('hex'));
+        (await contents.foo3).toString('hex').should.be.eql('5678');
+
+        headers.should.be.eql({
+          foo1: {
+            'content-disposition': 'form-data; name="foo1"',
+          },
+          stream1: {
+            'content-disposition': 'form-data; name="stream1"',
+            'x-part-addition': 'Hello World',
+          },
+          foo2: {
+            'content-disposition': 'form-data; name="foo2"',
+          },
+          stream2: {
+            'content-disposition': 'form-data; name="stream2"',
+          },
+          foo3: {
+            'content-disposition': 'form-data; name="foo3"',
+          },
+        });
+
+        done();
       } catch (e) {
         done(e);
       }
